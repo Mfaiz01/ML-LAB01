@@ -1,0 +1,563 @@
+#Program-1
+"""
+Implement and demonstrate the FIND-S algorithm for finding the most specific hypothesis based 
+on a given set of training data samples.Read the training data from a .CSV file. (enjoySport Dataset)
+"""
+import pandas as pd
+import numpy as np
+data = pd.read_csv(r"C:\Users\HPR\Desktop\ML Syllabus\2.csv")
+data
+concepts = np.array(data)[:,:-1] #The first colon (:) indicates that all rows of the array are selected.
+                                 #The second part (:-1) specifies that all columns except the last one are selected.
+Concepts
+target = np.array(data)[:,-1] #First colon (:): Selects all rows in the array.
+                              #-1: refers to the last column
+target
+def train(con, tar):
+    for i, val in enumerate(tar):
+        if val == 'yes':
+            specific_h = con[i].copy()
+            break
+            
+    for i, val in enumerate(con):
+        if tar[i] == 'yes':
+            for x in range(len(specific_h)):
+                if val[x] != specific_h[x]:
+                    specific_h[x] = '?'
+                else:
+                    pass
+    return specific_h
+print(train(concepts, target))
+
+#Program-2
+""""
+For a given set of training data examples stored in a .CSV file (enjoySport Dataset),
+implement and demonstrate the Candidate-Elimination algorithm to output a description of the 
+set of all hypotheses consistent with the training examples.
+  
+"""""
+import pandas as pd
+import numpy as np
+data = pd.read_csv(r"C:\Users\HPR\Desktop\ML Syllabus\2.csv")
+concepts = np.array(data.iloc[:,0:-1])
+target = np.array(data.iloc[:,-1])  
+def learn(concepts, target): 
+    specific_h = concepts[0].copy()  
+    print("initialization of specific_h \n",specific_h)  
+    general_h = [["?" for i in range(len(specific_h))] for i in range(len(specific_h))]     
+    print("initialization of general_h \n", general_h)  
+
+    for i, h in enumerate(concepts):
+        if target[i] == "yes":
+            print("If instance is Positive ")
+            for x in range(len(specific_h)): 
+                if h[x]!= specific_h[x]:                    
+                    specific_h[x] ='?'                     
+                    general_h[x][x] ='?'
+                   
+        if target[i] == "no":            
+            print("If instance is Negative ")
+            for x in range(len(specific_h)): 
+                if h[x]!= specific_h[x]:                    
+                    general_h[x][x] = specific_h[x]                
+                else:                    
+                    general_h[x][x] = '?'        
+
+        print(" step {}".format(i+1))
+        print(specific_h)         
+        print(general_h)
+        print("\n")
+        print("\n")
+
+    indices = [i for i, val in enumerate(general_h) if val == ['?', '?', '?', '?', '?', '?']]    
+    for i in indices:   
+        general_h.remove(['?', '?', '?', '?', '?', '?']) 
+    return specific_h, general_h 
+
+s_final, g_final = learn(concepts, target)
+
+print("Final Specific_h:", s_final, sep="\n")
+print("Final General_h:", g_final, sep="\n")
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Program-3
+""""
+Write a program to demonstrate the working of the decision tree based ID3 algorithm. 
+Use an appropriate data set for building the decision tree and apply the knowledge to classify
+a new sample.(Play Tennis Dataset)
+""""
+# Load libraries
+import numpy as np
+import pandas as pd
+from sklearn import metrics #Import scikit-learn metrics module for accuracy calculation
+df=pd.read_csv(r"C:\Users\HPR\Desktop\ML Syllabus\Play Tennis.csv")
+value=['Outlook','Temprature','Humidity','Wind']
+df
+len(df) 
+df.shape  #To see the number of rows and columns in our dataset:
+df.head() #prints first five samples
+df.tail() #prints last five samples
+df.describe()     #To see statistical details of the dataset:
+#machine learning algorithms can only learn from numbers (int, float, doubles .. )
+#so let us encode it to int
+from sklearn import preprocessing
+string_to_int= preprocessing.LabelEncoder()                     #encode your data
+df=df.apply(string_to_int.fit_transform) #fit and transform it
+df
+#To divide our data into attribute set and Label:
+feature_cols = ['Outlook','Temprature','Humidity','Wind']
+X = df[feature_cols ]                               #contains the attribute 
+y = df.Play_Tennis 
+#To divide our data into training and test sets:
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30) 
+# perform training 
+from sklearn.tree import DecisionTreeClassifier                             # import the classifier
+classifier =DecisionTreeClassifier(criterion="entropy", random_state=100)     # create a classifier object
+classifier.fit(X_train, y_train)                                              # fit the classifier with X and Y data 
+#Predict the response for test dataset
+y_pred= classifier.predict(X_test)  
+# Model Accuracy, how often is the classifier correct?
+from sklearn.metrics import accuracy_score
+print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
+data_p=pd.DataFrame({'Actual':y_test, 'Predicted':y_pred})  
+data_p
+from sklearn.metrics import classification_report, confusion_matrix  
+print(confusion_matrix(y_test, y_pred))  
+print(classification_report(y_test, y_pred)) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Program-4
+""""
+Write a program to demonstrate the working of the decision tree based CART algorithm.
+(Play Tennis Dataset)
+""""
+# Load libraries
+import numpy as np
+import pandas as pd
+from sklearn import metrics #Import scikit-learn metrics module for accuracy calculation
+df=pd.read_csv(r"C:\Users\HPR\Desktop\ML Syllabus\Play Tennis.csv")
+value=['Outlook','Temprature','Humidity','Wind']
+df
+len(df)
+df.shape  #To see the number of rows and columns in our dataset:
+df.head() #prints first five samples
+df.tail() #prints last five samples
+df.describe()     #To see statistical details of the dataset:
+#machine learning algorithms can only learn from numbers (int, float, doubles .. )
+#so let us encode it to int
+from sklearn import preprocessing
+string_to_int= preprocessing.LabelEncoder()                     #encode your data
+df=df.apply(string_to_int.fit_transform) #fit and transform it
+df
+#To divide our data into attribute set and Label:
+feature_cols = ['Outlook','Temprature','Humidity','Wind']
+X = df[feature_cols ]                               #contains the attribute 
+y = df.Play_Tennis 
+#To divide our data into training and test sets:
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30) 
+# perform training 
+from sklearn.tree import DecisionTreeClassifier                             # import the classifier
+classifier =DecisionTreeClassifier(criterion="gini", random_state=100)     # create a classifier object
+classifier.fit(X_train, y_train)                                              # fit the classifier with X and Y data 
+#Predict the response for test dataset
+y_pred= classifier.predict(X_test)  
+# Model Accuracy, how often is the classifier correct?
+from sklearn.metrics import accuracy_score
+print("Accuracy:",metrics.accuracy_score(y_test, y_pred))
+data_p=pd.DataFrame({'Actual':y_test, 'Predicted':y_pred})  
+data_p
+from sklearn.metrics import classification_report, confusion_matrix  
+print(confusion_matrix(y_test, y_pred))  
+print(classification_report(y_test, y_pred)) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Program-5
+""""
+Write a program to demonstrate Decision tree regression for a given dataset.(Play_Tennis_reg)
+""""
+# Load libraries
+import numpy as np
+import pandas as pd
+from sklearn import metrics #Import scikit-learn metrics module for accuracy calculation
+df=pd.read_csv(r"C:\Users\HPR\Desktop\ML Syllabus\Play_Tennis_reg.csv")
+len(df) 
+df.shape  #To see the number of rows and columns in our dataset:
+# Select features and target
+X = df.drop("Golf Players", axis=1)
+y = df['Golf Players']
+X
+y
+from sklearn.preprocessing import LabelEncoder
+from sklearn import preprocessing
+string_to_int= preprocessing.LabelEncoder()                     #encode your data
+X=X.apply(string_to_int.fit_transform) #fit and transform it
+X
+from sklearn.tree import DecisionTreeRegressor
+reg = DecisionTreeRegressor()
+reg = reg.fit(X, y)
+y_pred = reg.predict([[2,1,0,1]]) 
+# print the Result 
+print("Result is: ", y_pred) 
+y_pred = reg.predict([[2,1,0,0]]) 
+# print the Result 
+print("Result is: ", y_pred) 
+y_pred = reg.predict([[1,2,0,0]]) 
+# print the Result 
+print("Result is: ", y_pred) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+""""
+#Implement a Perceptron Algorithm for AND Logic Gate with 2-bit Binary Input. 
+#Test for the following Hyper parameters:
+    -->w1=1.2, w2=0.6, bias =0, threshold = 1, learning_rate = 0.5
+    -->w1=1.2, w2=0.6, bias =0.5, threshold = 1, learning_rate = 0.5
+    -->w1=1.2, w2=0.6, bias =1.0, threshold = 1, learning_rate = 0.5
+    -->w1=1.2, w2=0.6, bias =-1.0, threshold = 1, learning_rate = 0.5
+"""""
+import numpy as np
+# Define inputs and expected outputs for an AND gate
+inputs = np.array([
+    [0, 0],
+    [0, 1],
+    [1, 0],
+    [1, 1]
+])
+expected_outputs = np.array([0, 0, 0, 1])
+
+# Initialize weights, bias, threshold, and learning rate
+w1, w2 = 1.2, 0.6
+bias =-1.0
+threshold = 1
+learning_rate = 0.5
+# Activation function
+def activation_function(net_input):
+    return 1 if net_input >= threshold else 0
+
+# Training loop
+epochs = 0
+while True:
+    error_count = 0  # Track the number of misclassifications
+    
+    for i in range(len(inputs)):
+        # Calculate weighted sum including the bias
+        net_input = w1 * inputs[i][0] + w2 * inputs[i][1] + bias
+        
+        # Apply activation function
+        output = activation_function(net_input)
+        
+        # Calculate error
+        error = expected_outputs[i] - output
+        
+        # Update weights and bias if there is an error
+        if error != 0:
+            w1 += learning_rate * error * inputs[i][0]
+            w2 += learning_rate * error * inputs[i][1]
+            bias += learning_rate * error  # Update bias as well
+            error_count += 1
+    
+    epochs += 1
+    # Break if there are no errors
+    if error_count == 0:
+        break
+# Display results
+print(f"Training completed in {epochs} epochs")
+print(f"Final weights: w1 = {w1}, w2 = {w2}, bias = {bias}")
+# Test the perceptron on all input cases
+print("Testing perceptron for AND gate:")
+for i in range(len(inputs)):
+    net_input = w1 * inputs[i][0] + w2 * inputs[i][1] + bias
+    output = activation_function(net_input)
+    print(f"Input: {inputs[i]}, Output: {output}, Expected: {expected_outputs[i]}")
+
+#Program-7
+""""
+Write a program to implement the naïve Bayesian classifier for a sample training data set stored
+as a .CSV file.Compute the accuracy of the classifier, considering few test data sets. (Iris Dataset)
+""""
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import LabelEncoder
+# Load the Iris dataset
+data = pd.read_csv("Iris.csv")
+ 
+# Select features and target
+X = data.drop("Species", axis=1)
+y = data['Species']
+X
+Y
+# Encoding the Species column to get numerical class
+le = LabelEncoder()
+y = le.fit_transform(y)
+y
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+# Gaussian Naive Bayes classifier
+gnb = GaussianNB()
+ 
+# Train the classifier on the training data
+gnb.fit(X_train, y_train)
+# Make predictions on the testing data
+y_pred = gnb.predict(X_test)
+ 
+# Calculate the accuracy of the model
+accuracy = accuracy_score(y_test, y_pred)
+print(f"The Accuracy of Prediction on Iris Flower is: {accuracy}")
+# Create a DataFrame to display actual and predicted values
+df = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
+
+# Print the table
+print(df)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Program-8
+""""
+Implement Naive Bayes Classifier for text classification task.
+url: https://www.kaggle.com/datasets/uciml/sms-spam-collection-dataset
+""""
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB, GaussianNB
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics import accuracy_score, f1_score
+import matplotlib.pyplot as plt
+# Load the SMS Spam Collection Dataset
+sms_data = pd.read_csv("spam.csv", encoding='latin-1') # url: https://www.kaggle.com/datasets/uciml/sms-spam-collection-dataset
+# Preprocess the data
+sms_data = sms_data[['v1', 'v2']]
+sms_data = sms_data.rename(columns={'v1': 'label', 'v2': 'text'})
+sms_data
+# Split the data into features and labels
+X = sms_data['text']
+y = sms_data['label']
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# EDA 1: Distribution of Classes
+class_distribution = sms_data['label'].value_counts()
+class_distribution.plot(kind='pie', autopct='%1.1f%%', colors=['#66b3ff','#99ff99'])
+plt.title('Distribution of Spam and Ham Messages')
+plt.show()
+# Create a CountVectorizer to convert text data into numerical features
+vectorizer = CountVectorizer()
+X_train_vec = vectorizer.fit_transform(X_train)
+X_test_vec = vectorizer.transform(X_test)
+X_train_vec
+# Train a Multinomial Naive Bayes classifier
+mnb = MultinomialNB(alpha=0.8, fit_prior=True, force_alpha=True)
+mnb.fit(X_train_vec, y_train)
+# Train a Gaussian Naive Bayes classifier
+gnb = GaussianNB()
+gnb.fit(X_train_vec.toarray(), y_train)
+# Evaluate the models using accuracy and F1-score
+y_pred_mnb = mnb.predict(X_test_vec)
+accuracy_mnb = accuracy_score(y_test, y_pred_mnb)
+f1_mnb = f1_score(y_test, y_pred_mnb, pos_label='spam')
+ 
+y_pred_gnb = gnb.predict(X_test_vec.toarray())
+accuracy_gnb = accuracy_score(y_test, y_pred_gnb)
+f1_gnb = f1_score(y_test, y_pred_gnb, pos_label='spam')
+ 
+# Print the results
+print("Multinomial Naive Bayes - Accuracy:", accuracy_mnb)
+print("Multinomial Naive Bayes - F1-score for 'spam' class:", f1_mnb)
+ 
+print("Gaussian Naive Bayes - Accuracy:", accuracy_gnb)
+print("Gaussian Naive Bayes - F1-score for 'spam' class:", f1_gnb)
+
+
+
+
+
+
+
+
+#Program-9
+""""
+Write a program to demonstrate Random Forest for classification task on a given dataset.(Iris Dataset)
+""""
+# load the iris dataset 
+from sklearn.datasets import load_iris
+iris = load_iris()
+# store the feature matrix (X) and response vector (y)
+X = iris.data 
+y = iris.target
+# Count the number of samples
+num_samples = X.shape[0]  # The number of rows represents the number of samples
+
+print(f'Number of samples in the Iris dataset: {num_samples}')
+# splitting X and y into training and testing sets 
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=1)
+# Count the number of samples in the training and testing sets
+train_samples = X_train.shape[0]  # Number of rows in X_train
+test_samples = X_test.shape[0]    # Number of rows in X_test
+
+print(f'Number of samples in the training set: {train_samples}')
+print(f'Number of samples in the testing set: {test_samples}')
+# importing random forest classifier from assemble module
+from sklearn.ensemble import RandomForestClassifier
+# creating a RF classifier
+rf = RandomForestClassifier(n_estimators = 100)  
+ 
+# Training the model on the training dataset
+# fit function is used to train the model using the training sets as parameters
+rf.fit(X_train, y_train)
+# performing predictions on the test dataset
+y_pred = rf.predict(X_test)
+# comparing actual response values (y_test) with predicted response values (y_pred)
+from sklearn import metrics
+print("Random Forest model accuracy(in %):", metrics.accuracy_score(y_test, y_pred)*100)
+# Print the actual and predicted values
+print("Actual values:", y_test)
+print("Predicted values:", y_pred)
+import pandas as pd
+# Create a DataFrame to display actual and predicted values
+df = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred})
+
+# Print the table
+print(df)
+# Assuming the classes are as follows:
+label_mapping = {0: "iris-setosa", 1: "iris-versicolor", 2: "iris-virginica"}
+y_pred=rf.predict([[3, 3, 2, 2]])
+print("Result is:", label_mapping[y_pred[0]])
+
+
+
+
+
+
+
+
+
+
+
+
+#Program-10
+""""
+Implement AdaBoost ensemble method on a given dataset.(Iris dataset)
+""""
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import AdaBoostClassifier
+#import warnings warnings.filterwarnings("ignore")
+# Reading the dataset from the csv file # separator is a vertical line, as seen in the dataset
+data = pd.read_csv("Iris.csv")
+# Printing the shape of the dataset 
+print(data.shape)
+data.head()
+data = data.drop('Id',axis=1)
+X = data.iloc[:,:-1]
+y = data.iloc[:,-1]
+print("Shape of X is %s and shape of y is %s"%(X.shape,y.shape))
+total_classes = y.nunique()
+print("Number of unique species in dataset are: ",total_classes)
+distribution = y.value_counts()
+print(distribution)
+X_train, X_val, Y_train, Y_val = train_test_split( X, y, test_size=0.25, random_state=42)
+# Creating adaboost classifier model
+adb = AdaBoostClassifier()
+adb_model = adb.fit(X_train,Y_train)
+print("The accuracy of the model on validation set is", adb_model.score(X_val,Y_val))
+from sklearn.metrics import accuracy_score
+# Make predictions on the testing data
+y_pred = adb_model.predict(X_val)
+ 
+# Calculate the accuracy of the model
+accuracy = accuracy_score(Y_val, y_pred)
+print(f"The Accuracy of Prediction on Iris Flower is: {accuracy}")
+# Create a DataFrame to display actual and predicted values
+df = pd.DataFrame({'Actual': Y_val, 'Predicted': y_pred})
+
+# Print the table
+print(df)
